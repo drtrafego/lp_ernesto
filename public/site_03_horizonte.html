@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chácaras Nanci — Horizontes sem Limite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --dark: #0C0B09;
+    --dark-2: #141210;
+    --dark-3: #1C1915;
+    --dark-4: #242018;
+    --amber: #C47A3A;
+    --amber-light: #E8A85A;
+    --amber-pale: #F2D4A8;
+    --copper: #A05C28;
+    --warm-white: #F0EAE0;
+    --warm-mid: rgba(240,234,224,0.7);
+    --warm-dim: rgba(240,234,224,0.35);
+    --display: 'Bebas Neue', Impact, sans-serif;
+    --body: 'Raleway', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--dark);
+    color: var(--warm-white);
+    font-family: var(--body);
+    overflow-x: hidden;
+  }
+
+  /* ── CURSOR GLOW ── */
+  .cursor-glow {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(196,122,58,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: left 0.3s ease, top 0.3s ease;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    padding: 28px 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.5s;
+  }
+  nav.scrolled {
+    background: rgba(12,11,9,0.9);
+    backdrop-filter: blur(16px);
+    padding: 18px 72px;
+    border-bottom: 1px solid rgba(196,122,58,0.15);
+  }
+  .nav-brand {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+    color: var(--warm-white);
+    line-height: 1;
+  }
+  .nav-brand span {
+    display: block;
+    font-family: var(--body);
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-top: 2px;
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .nav-right a {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--warm-mid);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-right a:hover { color: var(--amber); }
+  .nav-cta {
+    background: var(--amber) !important;
+    color: var(--dark) !important;
+    padding: 11px 28px;
+    font-weight: 600 !important;
+    transition: background 0.3s !important;
+  }
+  .nav-cta:hover { background: var(--amber-light) !important; }
+
+  /* ── HERO CINEMATIC ── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .hero-video-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("WhatsApp Image 2025-07-29 at 15.50.11 (1).jpeg");
+    background-size: cover;
+    background-position: center 35%;
+    transform: scale(1.12);
+    will-change: transform;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(12,11,9,0.75) 0%,
+      rgba(12,11,9,0.2) 50%,
+      rgba(12,11,9,0.5) 100%
+    );
+  }
+  .hero-overlay-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(to top, var(--dark) 0%, transparent 100%);
+  }
+
+  /* TICKER */
+  .hero-ticker {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0; right: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .ticker-text {
+    font-family: var(--display);
+    font-size: clamp(10rem, 18vw, 18rem);
+    letter-spacing: 0.02em;
+    color: rgba(240,234,224,0.04);
+    white-space: nowrap;
+    display: inline-block;
+    animation: tickerMove 20s linear infinite;
+  }
+  @keyframes tickerMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    padding: 0 72px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .hero-left-text {
+    max-width: 680px;
+  }
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .hero-eyebrow-line {
+    width: 40px;
+    height: 1px;
+    background: var(--amber);
+  }
+  .hero-eyebrow span {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .hero-h1 {
+    font-family: var(--display);
+    font-size: clamp(4rem, 8vw, 8.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: var(--warm-white);
+    margin-bottom: 24px;
+  }
+  .hero-h1 .line-amber { color: var(--amber); }
+  .hero-h1 .line-outline {
+    -webkit-text-stroke: 1px rgba(240,234,224,0.4);
+    color: transparent;
+  }
+  .hero-desc {
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--warm-mid);
+    max-width: 400px;
+  }
+
+  .hero-right-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-end;
+    min-width: 240px;
+  }
+  .hero-badge-box {
+    border: 1px solid rgba(196,122,58,0.3);
+    padding: 20px 28px;
+    text-align: right;
+  }
+  .hero-badge-box strong {
+    display: block;
+    font-family: var(--display);
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .hero-badge-box span {
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--warm-dim);
+    margin-top: 4px;
+    display: block;
+  }
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--amber);
+    color: var(--dark);
+    padding: 18px 32px;
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+  .hero-cta:hover { background: var(--amber-light); transform: scale(1.02); }
+  .hero-cta svg { width: 18px; height: 18px; }
+
+  /* HERO SCROLL LINE */
+  .hero-scroll-line {
+    position: absolute;
+    right: 72px;
+    bottom: 0;
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, var(--amber), transparent);
+    z-index: 3;
+    animation: growLine 2s ease-in-out infinite alternate;
+  }
+  @keyframes growLine {
+    from { transform: scaleY(0.3); transform-origin: top; opacity: 0.4; }
+    to { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  }
+
+  /* ── COUNTER SECTION ── */
+  .counters {
+    background: var(--dark-2);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: relative;
+  }
+  .counters::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--amber), transparent);
+  }
+  .counter-item {
+    padding: 60px 48px;
+    border-right: 1px solid rgba(240,234,224,0.06);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .counter-item:last-child { border-right: none; }
+  .counter-item:hover { background: var(--dark-3); }
+  .counter-item::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--amber);
+    transition: width 0.5s ease;
+  }
+  .counter-item:hover::before { width: 100%; }
+  .counter-num {
+    font-family: var(--display);
+    font-size: 4rem;
+    letter-spacing: 0.03em;
+    color: var(--amber);
+    line-height: 1;
+    display: block;
+  }
+  .counter-plus {
+    color: var(--amber-light);
+    font-size: 2rem;
+  }
+  .counter-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--warm-dim);
+    margin-top: 12px;
+    display: block;
+  }
+  .counter-sub {
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: rgba(240,234,224,0.35);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* ── SOBRE CINEMATIC ── */
+  .sobre {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+  .sobre-visual {
+    position: relative;
+    overflow: hidden;
+  }
+  .sobre-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.75);
+    transform: scale(1.05);
+    transition: transform 0.8s ease;
+  }
+  .sobre-visual:hover img { transform: scale(1); }
+  .sobre-visual-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 60%, var(--dark-2) 100%);
+  }
+  .sobre-visual-label {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--amber);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  .sobre-copy {
+    background: var(--dark-2);
+    padding: 100px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .tag-small {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--amber);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .tag-small::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--amber);
+  }
+  .sobre-title {
+    font-family: var(--display);
+    font-size: clamp(3rem, 5vw, 5.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.03em;
+    color: var(--warm-white);
+    margin-bottom: 36px;
+  }
+  .sobre-title .highlight {
+    -webkit-text-stroke: 1px var(--amber);
+    color: transparent;
+  }
+  .sobre-text {
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.95;
+    color: var(--warm-mid);
+    margin-bottom: 14px;
+  }
+  .sobre-divider {
+    width: 50px;
+    height: 1px;
+    background: var(--amber);
+    margin: 32px 0;
+  }
+  .sobre-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .sf-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .sf-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(196,122,58,0.12);
+    border: 1px solid rgba(196,122,58,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--amber);
+  }
+  .sf-icon svg { width: 14px; height: 14px; }
+  .sf-text {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: rgba(240,234,224,0.6);
+    line-height: 1.6;
+    margin-top: 6px;
+  }
+  .sobre-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: transparent;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    padding: 18px 36px;
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-top: 40px;
+    transition: all 0.3s;
+    align-self: flex-start;
+  }
+  .sobre-cta:hover {
+    background: var(--amber);
+    color: var(--dark);
+  }
+  .sobre-cta svg { width: 18px; height: 18px; }
+
+  /* ── STRIP MARQUEE ── */
+  .strip {
+    background: var(--amber);
+    padding: 16px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .strip-track {
+    display: inline-block;
+    animation: stripMove 25s linear infinite;
+  }
+  .strip-track span {
+    display: inline-block;
+    font-family: var(--display);
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    color: var(--dark);
+    padding: 0 30px;
+  }
+  .strip-track span::before { content: '✦'; margin-right: 30px; }
+  @keyframes stripMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── GALERIA BOLD ── */
+  .galeria {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 380px 240px;
+    gap: 4px;
+    background: var(--dark-3);
+  }
+  .gitem {
+    overflow: hidden;
+    position: relative;
+  }
+  .gitem:first-child { grid-row: span 2; }
+  .gitem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease, filter 0.6s ease;
+    filter: brightness(0.7) saturate(0.8);
+  }
+  .gitem:hover img { transform: scale(1.07); filter: brightness(0.9) saturate(1); }
+  .gitem-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+    background: linear-gradient(to top, rgba(12,11,9,0.8) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .gitem:hover .gitem-overlay { opacity: 1; }
+  .gitem-label {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .gitem-name {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    color: var(--warm-white);
+    margin-top: 4px;
+  }
+
+  /* ── DIFS GRID ── */
+  .difs {
+    background: var(--dark-3);
+    padding: 120px 72px;
+  }
+  .difs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 80px;
+    flex-wrap: wrap;
+    gap: 40px;
+  }
+  .difs-title {
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    line-height: 0.92;
+    letter-spacing: 0.04em;
+    color: var(--warm-white);
+    max-width: 500px;
+  }
+  .difs-title .outline {
+    -webkit-text-stroke: 1px rgba(240,234,224,0.3);
+    color: transparent;
+  }
+  .difs-desc {
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--warm-dim);
+    max-width: 300px;
+    line-height: 1.8;
+  }
+  .difs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
+  .dif-block {
+    background: var(--dark-4);
+    padding: 52px 44px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: background 0.3s;
+  }
+  .dif-block:hover { background: #2A2318; }
+  .dif-block::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--amber);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.4s ease;
+  }
+  .dif-block:hover::after { transform: scaleY(1); }
+  .dif-num {
+    font-family: var(--display);
+    font-size: 5rem;
+    letter-spacing: 0.02em;
+    color: rgba(196,122,58,0.1);
+    line-height: 1;
+    transition: color 0.3s;
+  }
+  .dif-block:hover .dif-num { color: rgba(196,122,58,0.2); }
+  .dif-block h3 {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    letter-spacing: 0.06em;
+    color: var(--warm-white);
+    margin: 16px 0 14px;
+  }
+  .dif-block p {
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: var(--warm-dim);
+    line-height: 1.8;
+  }
+
+  /* ── CTA BOLD ── */
+  .cta-bold {
+    position: relative;
+    overflow: hidden;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+  }
+  .cta-bold-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("WhatsApp Image 2025-07-29 at 15.50.11 (1).jpeg");
+    background-size: cover;
+    background-position: center 20%;
+    filter: brightness(0.2) saturate(0.5);
+  }
+  .cta-bold-amber {
+    position: absolute;
+    bottom: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(196,122,58,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cta-bold-content {
+    position: relative;
+    z-index: 2;
+    padding: 80px 72px;
+    max-width: 800px;
+  }
+  .cta-bold-content .tag-small { margin-bottom: 24px; }
+  .cta-bold-title {
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 7vw, 8rem);
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+    color: var(--warm-white);
+    margin-bottom: 30px;
+  }
+  .cta-bold-title span {
+    display: block;
+    color: var(--amber);
+  }
+  .cta-bold-title em {
+    display: block;
+    font-style: normal;
+    -webkit-text-stroke: 1px rgba(240,234,224,0.35);
+    color: transparent;
+  }
+  .cta-bold-sub {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--warm-mid);
+    line-height: 1.85;
+    max-width: 420px;
+    margin-bottom: 48px;
+  }
+  .cta-bold-btns {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-amber {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--amber);
+    color: var(--dark);
+    padding: 22px 44px;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+  .btn-amber:hover { background: var(--amber-light); transform: translateY(-3px); }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: 1px solid rgba(240,234,224,0.25);
+    color: var(--warm-white);
+    padding: 22px 44px;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+  .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #070604;
+    padding: 60px 72px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 48px;
+    border-top: 1px solid rgba(196,122,58,0.1);
+  }
+  .footer-brand-big {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    letter-spacing: 0.1em;
+    color: var(--warm-white);
+    line-height: 1;
+  }
+  .footer-brand-big span {
+    display: block;
+    font-family: var(--body);
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    color: var(--amber);
+    margin-top: 4px;
+  }
+  .footer-line {
+    height: 1px;
+    background: rgba(240,234,224,0.06);
+  }
+  .footer-right {
+    text-align: right;
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: rgba(240,234,224,0.25);
+    line-height: 2;
+  }
+  .footer-right strong { color: var(--amber); font-weight: 500; }
+
+  /* ── ANIMATIONS ── */
+  .rise {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .rise.show { opacity: 1; transform: translateY(0); }
+  .slide-l {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .slide-l.show { opacity: 1; transform: translateX(0); }
+  .slide-r {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .slide-r.show { opacity: 1; transform: translateX(0); }
+  .d1 { transition-delay: 0.1s; }
+  .d2 { transition-delay: 0.2s; }
+  .d3 { transition-delay: 0.3s; }
+  .d4 { transition-delay: 0.4s; }
+  .d5 { transition-delay: 0.5s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    .hero-content { padding: 0 24px 60px; flex-direction: column; gap: 30px; align-items: flex-start; }
+    .hero-right-info { align-items: flex-start; }
+    .counters { grid-template-columns: repeat(2,1fr); }
+    .sobre { grid-template-columns: 1fr; }
+    .sobre-visual { height: 50vh; }
+    .sobre-copy { padding: 60px 24px; }
+    .galeria { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .gitem:first-child { grid-row: span 1; }
+    .difs { padding: 80px 24px; }
+    .difs-grid { grid-template-columns: 1fr; gap: 3px; }
+    .cta-bold-content { padding: 60px 24px; }
+    footer { grid-template-columns: 1fr; padding: 40px 24px; }
+    .footer-right { text-align: left; }
+    .footer-line { display: none; }
+    .sobre-features { grid-template-columns: 1fr; }
+    .nav-right a:not(.nav-cta) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="glow"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-brand">
+    CHÁCARAS NANCI
+    <span>Ferreira &amp; Garcia Imobiliária</span>
+  </div>
+  <div class="nav-right">
+    <a href="#sobre">Empreendimento</a>
+    <a href="#galeria">Galeria</a>
+    <a href="https://wa.me/5565999999999?text=Quero+saber+mais+sobre+as+Chácaras+Nanci" target="_blank" class="nav-cta">Quero Conhecer</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-video-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-overlay-bottom"></div>
+  <div class="hero-ticker">
+    <span class="ticker-text">CHÁCARAS NANCI &nbsp; CHÁCARAS NANCI &nbsp; CHÁCARAS NANCI &nbsp; CHÁCARAS NANCI &nbsp; CHÁCARAS NANCI &nbsp; CHÁCARAS NANCI &nbsp;</span>
+  </div>
+  <div class="hero-content">
+    <div class="hero-left-text">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <span>Loteamento Premium — Terrenos para Chácaras</span>
+      </div>
+      <h1 class="hero-h1">
+        <div>HORIZONTES</div>
+        <div class="line-amber">SEM</div>
+        <div class="line-outline">LIMITES</div>
+      </h1>
+      <p class="hero-desc">Terrenos de alto padrão em ambiente natural privilegiado. O investimento certo para quem sabe o valor da liberdade e da terra.</p>
+    </div>
+    <div class="hero-right-info">
+      <div class="hero-badge-box">
+        <strong>1.000+</strong>
+        <span>m² por lote</span>
+      </div>
+      <div class="hero-badge-box">
+        <strong>100%</strong>
+        <span>Documentado</span>
+      </div>
+      <a href="https://wa.me/5565999999999?text=Quero+saber+mais+sobre+as+Chácaras+Nanci" target="_blank" class="hero-cta">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Falar Agora
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll-line"></div>
+</section>
+
+<!-- COUNTERS -->
+<div class="counters">
+  <div class="counter-item rise">
+    <span class="counter-num">1000<span class="counter-plus">+</span></span>
+    <span class="counter-label">m² por Lote</span>
+    <p class="counter-sub">Espaço real para construir o estilo de vida que você merece</p>
+  </div>
+  <div class="counter-item rise d1">
+    <span class="counter-num">100<span class="counter-plus">%</span></span>
+    <span class="counter-label">Documentado</span>
+    <p class="counter-sub">Segurança jurídica total em cada etapa da compra</p>
+  </div>
+  <div class="counter-item rise d2">
+    <span class="counter-num">10<span class="counter-plus">min</span></span>
+    <span class="counter-label">da Cidade</span>
+    <p class="counter-sub">Natureza e comodidade urbana a poucos minutos</p>
+  </div>
+  <div class="counter-item rise d3">
+    <span class="counter-num">∞</span>
+    <span class="counter-label">Qualidade de Vida</span>
+    <p class="counter-sub">Liberdade, paz e contato com a natureza todos os dias</p>
+  </div>
+</div>
+
+<!-- SOBRE -->
+<section class="sobre" id="sobre">
+  <div class="sobre-visual slide-l">
+    <img src="WhatsApp Image 2025-07-29 at 15.50.11.jpeg" alt="Vista aérea das Chácaras Nanci com floresta nativa">
+    <div class="sobre-visual-overlay"></div>
+    <div class="sobre-visual-label">Vista Aérea — Chácaras Nanci</div>
+  </div>
+  <div class="sobre-copy slide-r">
+    <div class="tag-small">O Empreendimento</div>
+    <h2 class="sobre-title">
+      NATUREZA<br>
+      <span class="highlight">REAL.</span><br>
+      ESPAÇO<br>TOTAL.
+    </h2>
+    <p class="sobre-text">As Chácaras Nanci são terrenos de alto padrão localizados em uma região de natureza exuberante, com floresta nativa ao redor e uma paisagem que muda a forma como você enxerga a vida.</p>
+    <p class="sobre-text">Cada lote foi planejado para oferecer espaço genuíno, tranquilidade real e um investimento que se valoriza com o tempo.</p>
+    <div class="sobre-divider"></div>
+    <div class="sobre-features">
+      <div class="sf-item">
+        <div class="sf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span class="sf-text">Lotes amplos a partir de 1.000m²</span>
+      </div>
+      <div class="sf-item">
+        <div class="sf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <span class="sf-text">Documentação 100% regularizada</span>
+      </div>
+      <div class="sf-item">
+        <div class="sf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 010 20M2 12h20"/></svg>
+        </div>
+        <span class="sf-text">Floresta nativa e ar puro</span>
+      </div>
+      <div class="sf-item">
+        <div class="sf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+        </div>
+        <span class="sf-text">Alto potencial de valorização</span>
+      </div>
+    </div>
+    <a href="https://wa.me/5565999999999?text=Quero+saber+mais+sobre+as+Chácaras+Nanci" target="_blank" class="sobre-cta">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Quero Saber Mais
+    </a>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-track">
+    <span>Chácaras Nanci</span>
+    <span>Alto Padrão</span>
+    <span>Natureza Real</span>
+    <span>Investimento Seguro</span>
+    <span>Ferreira &amp; Garcia</span>
+    <span>Vida no Campo</span>
+    <span>Chácaras Nanci</span>
+    <span>Alto Padrão</span>
+    <span>Natureza Real</span>
+    <span>Investimento Seguro</span>
+    <span>Ferreira &amp; Garcia</span>
+    <span>Vida no Campo</span>
+  </div>
+</div>
+
+<!-- GALERIA -->
+<div class="galeria" id="galeria">
+  <div class="gitem">
+    <img src="WhatsApp Image 2025-07-29 at 15.50.11 (1).jpeg" alt="Pôr do sol">
+    <div class="gitem-overlay">
+      <div class="gitem-label">Chácaras Nanci</div>
+      <div class="gitem-name">Pôr do Sol</div>
+    </div>
+  </div>
+  <div class="gitem">
+    <img src="WhatsApp Image 2025-07-29 at 15.50.12 (2).jpeg" alt="Cavalos">
+    <div class="gitem-overlay">
+      <div class="gitem-label">Estilo de Vida</div>
+      <div class="gitem-name">Vida no Campo</div>
+    </div>
+  </div>
+  <div class="gitem">
+    <img src="WhatsApp Image 2026-04-28 at 11.18.49.jpeg" alt="Vista aérea">
+    <div class="gitem-overlay">
+      <div class="gitem-label">Loteamento</div>
+      <div class="gitem-name">Vista Aérea</div>
+    </div>
+  </div>
+  <div class="gitem">
+    <img src="WhatsApp Image 2025-07-29 at 15.50.11.jpeg" alt="Floresta">
+    <div class="gitem-overlay">
+      <div class="gitem-label">Ambiente</div>
+      <div class="gitem-name">Natureza</div>
+    </div>
+  </div>
+  <div class="gitem">
+    <img src="Varias.png" alt="Lifestyle">
+    <div class="gitem-overlay">
+      <div class="gitem-label">Campo</div>
+      <div class="gitem-name">Lifestyle</div>
+    </div>
+  </div>
+</div>
+
+<!-- DIFS -->
+<section class="difs">
+  <div class="difs-header">
+    <h2 class="difs-title rise">
+      POR QUE<br>
+      INVESTIR<br>
+      <span class="outline">AQUI</span>
+    </h2>
+    <p class="difs-desc rise d1">Cada detalhe foi pensado para oferecer uma experiência de compra e de vida que vai além do esperado.</p>
+  </div>
+  <div class="difs-grid">
+    <div class="dif-block rise d1">
+      <div class="dif-num">01</div>
+      <h3>LOTES AMPLOS</h3>
+      <p>Terrenos generosos com espaço para plantar, criar animais e construir sua chácara ideal com total liberdade.</p>
+    </div>
+    <div class="dif-block rise d2">
+      <div class="dif-num">02</div>
+      <h3>NATUREZA PURA</h3>
+      <p>Floresta nativa ao redor, ar puro e paisagem única que transforma cada amanhecer em uma experiência renovadora.</p>
+    </div>
+    <div class="dif-block rise d3">
+      <div class="dif-num">03</div>
+      <h3>SEGURANÇA TOTAL</h3>
+      <p>Documentação 100% regularizada, CRECI ativo e total transparência jurídica em todo o processo de compra.</p>
+    </div>
+    <div class="dif-block rise d1">
+      <div class="dif-num">04</div>
+      <h3>VALORIZAÇÃO</h3>
+      <p>Imóveis rurais em localização privilegiada têm crescente demanda e sólido histórico de valorização no mercado.</p>
+    </div>
+    <div class="dif-block rise d2">
+      <div class="dif-num">05</div>
+      <h3>INFRAESTRUTURA</h3>
+      <p>Acesso viário, energia elétrica e toda a infraestrutura básica planejada para seu conforto desde o início.</p>
+    </div>
+    <div class="dif-block rise d3">
+      <div class="dif-num">06</div>
+      <h3>CONSULTORIA</h3>
+      <p>Ferreira &amp; Garcia com atendimento personalizado do primeiro contato até a assinatura da escritura definitiva.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BOLD -->
+<section class="cta-bold">
+  <div class="cta-bold-bg"></div>
+  <div class="cta-bold-amber"></div>
+  <div class="cta-bold-content">
+    <div class="tag-small">Realize Agora</div>
+    <h2 class="cta-bold-title rise">
+      <span>SUA CHÁCARA</span>
+      DOS SONHOS
+      <em>ESTÁ AQUI</em>
+    </h2>
+    <p class="cta-bold-sub rise d1">Entre em contato agora. Um consultor Ferreira &amp; Garcia vai apresentar todas as opções e condições especiais disponíveis para você.</p>
+    <div class="cta-bold-btns rise d2">
+      <a href="https://wa.me/5565999999999?text=Quero+saber+mais+sobre+as+Chácaras+Nanci" target="_blank" class="btn-amber">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Falar no WhatsApp
+      </a>
+      <a href="tel:+5565999999999" class="btn-ghost">Ligar Agora</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand-big">
+    CHÁCARAS NANCI
+    <span>Ferreira &amp; Garcia Imobiliária</span>
+  </div>
+  <div class="footer-line"></div>
+  <div class="footer-right">
+    <strong>CRECI — MT Ativo</strong><br>
+    Loteamento de Alto Padrão para Chácaras<br>
+    © 2026 Todos os direitos reservados
+  </div>
+</footer>
+
+<script>
+  // Cursor glow
+  const glow = document.getElementById('glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+
+  // Navbar
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.pageYOffset > 60);
+  }, { passive: true });
+
+  // Hero parallax
+  const heroBg = document.getElementById('heroBg');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    heroBg.style.transform = `scale(1.12) translateY(${scrolled * 0.2}px)`;
+  }, { passive: true });
+
+  // Reveal
+  const els = document.querySelectorAll('.rise, .slide-l, .slide-r');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('show'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  els.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
