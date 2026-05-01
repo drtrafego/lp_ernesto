@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { db } from '@/lib/db'
+import { getDb } from '@/lib/db'
 import { leads } from '@/lib/schema'
 import { sendMetaCAPI } from '@/lib/tracking-server'
 
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     const [row] = await withTimeout(
-      db.insert(leads).values({
+      getDb().insert(leads).values({
         name:         input.name,
         email:        input.email,
         whatsapp:     input.whatsapp,
