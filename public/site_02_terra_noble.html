@@ -27,7 +27,7 @@
     --sans: 'Montserrat', system-ui, sans-serif;
   }
 
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
   body {
     background: var(--cream);
     color: var(--text-dark);
@@ -739,19 +739,19 @@
   /* ── REVEAL ANIMATIONS ── */
   .fade-up {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(-20px);
     transition: opacity 0.9s ease, transform 0.9s ease;
   }
   .fade-up.in { opacity: 1; transform: translateY(0); }
   .fade-left {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateX(-20px);
     transition: opacity 0.9s ease, transform 0.9s ease;
   }
   .fade-left.in { opacity: 1; transform: translateX(0); }
   .fade-right {
     opacity: 0;
-    transform: translateX(50px);
+    transform: translateX(20px);
     transition: opacity 0.9s ease, transform 0.9s ease;
   }
   .fade-right.in { opacity: 1; transform: translateX(0); }
