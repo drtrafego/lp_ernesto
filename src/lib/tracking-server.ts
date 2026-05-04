@@ -3,7 +3,6 @@
 export interface CAPIPayload {
   leadId: number | string
   name: string
-  email: string
   whatsapp: string
   ip?: string
   userAgent?: string
@@ -35,11 +34,10 @@ export async function sendMetaCAPI(payload: CAPIPayload): Promise<void> {
   }
 
   try {
-    const { leadId, name, email, whatsapp, ip, userAgent, fbc, fbp, eventSourceUrl } = payload
+    const { leadId, name, whatsapp, ip, userAgent, fbc, fbp, eventSourceUrl } = payload
 
-    const [hashedEmail, hashedPhone, hashedFirstName, hashedExternalId] =
+    const [hashedPhone, hashedFirstName, hashedExternalId] =
       await Promise.all([
-        hashData(email),
         hashData(cleanPhone(whatsapp)),
         hashData(firstName(name)),
         hashData(String(leadId)),
@@ -54,7 +52,6 @@ export async function sendMetaCAPI(payload: CAPIPayload): Promise<void> {
           action_source: 'website',
           event_source_url: eventSourceUrl ?? undefined,
           user_data: {
-            em: [hashedEmail],
             ph: [hashedPhone],
             fn: [hashedFirstName],
             ...(ip        && { client_ip_address: ip }),
@@ -64,7 +61,7 @@ export async function sendMetaCAPI(payload: CAPIPayload): Promise<void> {
             external_id: [hashedExternalId],
           },
           custom_data: {
-            content_name: 'Lead BilderAI',
+            content_name: 'Lead Chácara Nanci',
             value: 0,
             currency: 'BRL',
           },

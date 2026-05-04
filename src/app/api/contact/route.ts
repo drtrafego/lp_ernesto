@@ -6,7 +6,6 @@ import { sendMetaCAPI } from '@/lib/tracking-server'
 
 const ContactSchema = z.object({
   name:     z.string().min(2, 'Nome muito curto').max(120),
-  email:    z.string().email('E-mail inválido'),
   whatsapp: z.string().min(10, 'Telefone inválido').max(20),
   utm_source:   z.string().optional(),
   utm_medium:   z.string().optional(),
@@ -66,7 +65,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const [row] = await withTimeout(
       getDb().insert(leads).values({
         name:         input.name,
-        email:        input.email,
         whatsapp:     input.whatsapp,
         utm_source:   input.utm_source,
         utm_medium:   input.utm_medium,
@@ -87,7 +85,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   void sendMetaCAPI({
     leadId,
     name:     input.name,
-    email:    input.email,
     whatsapp: input.whatsapp,
     ip,
     userAgent,
