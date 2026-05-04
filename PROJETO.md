@@ -7,7 +7,7 @@
 
 Landing page de alto padrão para o loteamento **Chácaras Nanci**, comercializado pela **Ferreira Garcia Imobiliária** (CRECI 8649/J), localizada em Sinop/MT.
 
-A página foi construída com Next.js 14 e hospedada no Vercel. O backend captura leads, salva no banco de dados e dispara eventos para a Meta via Conversions API.
+A página foi construída com Next.js 14 e hospedada no Vercel. O backend captura leads, salva no banco de dados, dispara eventos para a Meta via Conversions API, envia para o GA4 via Measurement Protocol e sincroniza com o CRM.
 
 ---
 
@@ -26,49 +26,60 @@ A página foi construída com Next.js 14 e hospedada no Vercel. O backend captur
 
 ---
 
-## 3. Fluxo do lead
+## 3. Rotas do projeto
+
+| Rota | Descrição |
+|---|---|
+| `/obsidian` | LP principal (Meta Ads) |
+| `/obsidian/obrigado` | Página de obrigado com countdown 3s e redirect WhatsApp |
+| `/chacara-nanci` | Mesma LP (links Google / SEO) |
+| `/chacara-nanci/obrigado` | Mesma página de obrigado |
+| `POST /api/contact` | Recebe leads, salva banco, dispara CAPI, GA4 e CRM |
+
+---
+
+## 4. Fluxo completo do lead
 
 ```
-Usuário acessa /obsidian
+Usuário acessa /obsidian ou /chacara-nanci
         |
+        | Pixel dispara: PageView + ViewContent
+        | GTM captura UTMs da URL automaticamente
         v
 Clica em qualquer botão CTA
         |
         v
-Rola até o formulário (#formulario) no final da página
+Rola até o formulário (#formulario)
         |
         v
-Preenche: Nome + WhatsApp
+Preenche: Nome + WhatsApp → submit
         |
         v
-Submit → POST /api/contact
+[CLIENT] fbq('track', 'Lead', {}, { eventID: leadId })
+[CLIENT] dataLayer.push({ event: 'generate_lead', lead_id: leadId })
+        |
+        v
+POST /api/contact
   - Valida com Zod
-  - Salva no banco Neon (timeout 5s, fallback em memória)
-  - Captura UTMs da URL automaticamente
-  - Retorna 200 OK
-  - [background] Dispara evento Lead na Meta CAPI
+  - Captura IP, User-Agent, cookies _fbc, _fbp, _ga
+  - Captura UTMs (utm_source, utm_medium, utm_campaign, utm_term)
+  - Salva no Neon PostgreSQL (timeout 5s, fallback em memória)
+  - Retorna 200 OK com leadId
+  - [background] Meta CAPI → evento Lead (mesmo eventID do Pixel)
+  - [background] GA4 Measurement Protocol → evento generate_lead
+  - [background] CRM sync → org_slug: obsidian
         |
         v
 Redirect → /obsidian/obrigado
         |
+        | dataLayer.push({ event: 'generate_lead', page: 'obrigado' })
         v
-Página de obrigado com countdown de 3 segundos
+Countdown 3 segundos
         |
         v
-Redirect → WhatsApp
-Número: 5566996829009
-Mensagem: "Gostaria de mais informações da Chácara Nanci"
+Redirect → wa.me/5566996829009
+           msg: "Gostaria de mais informações da Chácara Nanci"
 ```
-
----
-
-## 4. Rotas do projeto
-
-| Rota | Arquivo | Descrição |
-|---|---|---|
-| `/obsidian` | `src/app/obsidian/route.ts` | Serve a LP principal |
-| `/obsidian/obrigado` | `src/app/obsidian/obrigado/route.ts` | Página de obrigado com redirect 3s |
-| `POST /api/contact` | `src/app/api/contact/route.ts` | Recebe leads, salva e dispara CAPI |
 
 ---
 
@@ -76,8 +87,8 @@ Mensagem: "Gostaria de mais informações da Chácara Nanci"
 
 ```
 public/
-  site_01_obsidian.html       LP principal
-  obrigado_obsidian.html      Página de obrigado
+  site_01_obsidian.html       LP principal (com placeholders %%GTM_ID%%, %%FB_PIXEL_ID%%)
+  obrigado_obsidian.html      Página de obrigado (com placeholder %%GTM_ID%%)
   img-1.jpeg                  Foto nova Drive (galeria item 1)
   img-2.jpeg                  Pôr do sol (hero background)
   img-3.jpeg                  Cavalos (CTA background)
@@ -88,13 +99,18 @@ public/
 
 src/
   lib/
-    schema.ts                 Tabela "leads" no PostgreSQL
+    schema.ts                 Tabela "leads" (name, whatsapp, utms)
     db.ts                     Conexão Drizzle + Neon
-    tracking-server.ts        Meta CAPI server-side
+    tracking-server.ts        Meta CAPI + GA4 Measurement Protocol (server-side)
+    crm.ts                    Sync CRM (org_slug: obsidian, fire-and-forget)
   app/
-    obsidian/route.ts
-    obsidian/obrigado/route.ts
-    api/contact/route.ts
+    obsidian/
+      route.ts                GET /obsidian → injeta GTM_ID e FB_PIXEL_ID no HTML
+      obrigado/route.ts       GET /obsidian/obrigado → injeta GTM_ID no HTML
+    chacara-nanci/
+      route.ts                GET /chacara-nanci → mesma LP
+      obrigado/route.ts       GET /chacara-nanci/obrigado → mesma obrigado
+    api/contact/route.ts      POST /api/contact → orquestra banco, CAPI, GA4, CRM
 ```
 
 ---
@@ -103,7 +119,7 @@ src/
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
-| `id` | serial (PK) | Usado como external_id na CAPI |
+| `id` | serial (PK) | Usado como external_id na CAPI e event_id no GA4 |
 | `name` | text | Nome do lead |
 | `whatsapp` | text | WhatsApp (qualquer formato) |
 | `utm_source` | text | Ex: facebook |
@@ -114,7 +130,53 @@ src/
 
 ---
 
-## 7. Variáveis de ambiente necessárias no Vercel
+## 7. Tracking — situação completa
+
+### Meta Pixel (client-side) — HTML
+
+| Evento | Quando | Status |
+|---|---|---|
+| `PageView` | Ao carregar a página | Implementado |
+| `ViewContent` | Ao carregar a página | Implementado |
+| `Lead` | Ao submeter o formulário, com `eventID` para deduplicação | Implementado |
+
+### Meta CAPI (server-side) — tracking-server.ts
+
+| Evento | Quando | Status |
+|---|---|---|
+| `Lead` | Background após salvar no banco | Implementado |
+
+Dados enviados com SHA-256: telefone (`ph`), primeiro nome (`fn`), external_id.
+Dados em claro: IP, User-Agent, cookies `_fbc` e `_fbp`.
+Deduplicação: `event_id` = `leadId` (mesmo valor do Pixel client-side).
+
+### GTM + GA4 (dataLayer) — client-side
+
+| Evento | Quando | Status |
+|---|---|---|
+| UTMs | Ao carregar (utm_source, utm_medium, utm_campaign, utm_content, utm_term, gclid) | Implementado |
+| `generate_lead` | Ao submeter o formulário | Implementado |
+| `generate_lead` | Ao entrar na página de obrigado | Implementado |
+
+### GA4 Measurement Protocol (server-side) — tracking-server.ts
+
+| Evento | Quando | Status |
+|---|---|---|
+| `generate_lead` | Background após salvar no banco | Implementado |
+
+Parâmetros: `client_id` (extraído do cookie `_ga`), `session_id`, `currency`, `value`, `form_name`, `external_id`, UTMs.
+
+### CRM — crm.ts
+
+| Ação | Quando | Status |
+|---|---|---|
+| `sync-whatsapp-lead` | Background após salvar no banco | Implementado |
+
+Parâmetros: `org_slug: obsidian`, `name`, `phone` (DDI automático), `message` fixo, `campaign` (utm_campaign).
+
+---
+
+## 8. Variáveis de ambiente — Vercel
 
 | Variável | Onde obter | Status |
 |---|---|---|
@@ -122,46 +184,14 @@ src/
 | `FB_PIXEL_ID` | Meta Business, Gerenciador de Eventos | A configurar |
 | `FB_ACCESS_TOKEN` | Meta Business, Gerenciador de Eventos, Conversions API | A configurar |
 | `NEXT_PUBLIC_FB_PIXEL_ID` | Mesmo valor do FB_PIXEL_ID | A configurar |
+| `NEXT_PUBLIC_GTM_ID` | Google Tag Manager | A configurar |
+| `GA_MEASUREMENT_ID` | GA4, Admin, Data Streams (ex: G-XXXXXXXXXX) | A configurar |
+| `GA_API_SECRET` | GA4, Admin, Data Streams, Measurement Protocol API secrets | A configurar |
+| `CRM_API_URL` | URL base da API do CRM (sem barra no final) | A configurar |
 
 ---
 
-## 8. Tracking — situação atual
-
-### Meta CAPI (server-side)
-- Implementado e pronto
-- Evento: `Lead`
-- Dados enviados com SHA-256: telefone, primeiro nome, external_id
-- Dados em claro: IP, User-Agent, cookies _fbc e _fbp
-- `content_name`: "Lead Chácara Nanci"
-- Só ativa quando as env vars forem adicionadas no Vercel
-
-### Meta Pixel (front-end)
-- Ainda não implementado
-- Precisa do Pixel ID para adicionar no HTML
-
-### Google Analytics / GTM
-- Ainda não implementado
-- Precisa do ID GA4 (G-XXXXXXXXXX) ou GTM (GTM-XXXXXXX)
-
-### Eventos planejados — Meta Pixel
-| Evento | Gatilho |
-|---|---|
-| `PageView` | Ao carregar a página |
-| `ViewContent` | Ao carregar a página |
-| `Lead` | Ao submeter o formulário |
-
-### Eventos planejados — Google Analytics
-| Evento | Gatilho |
-|---|---|
-| `page_view` | Automático |
-| `generate_lead` | Ao submeter o formulário |
-| `view_item` | Ao ver a seção de diferenciais |
-| `scroll` | Em 25%, 50%, 75% e 90% da página |
-| `click` | Nos botões CTA |
-
----
-
-## 9. SEO e GEO implementados
+## 9. SEO e GEO
 
 ### Meta tags
 - `title`: Chácaras Nanci — Lotes de 2.400m² em Sinop/MT | Ferreira Garcia Imobiliária
@@ -170,58 +200,33 @@ src/
 - `canonical`: URL da página
 
 ### Palavras-chave
-- chácara à venda Sinop
-- lotes rurais Sinop MT
-- terreno chácara Sinop
-- loteamento Sinop Mato Grosso
-- chácara 2400m² Sinop
-- imóvel rural Sinop
-- Ferreira Garcia Imobiliária
-- comprar chácara Sinop
-- lote campo Sinop
-- chácara Nanci Sinop
+chácara à venda Sinop, lotes rurais Sinop MT, terreno chácara Sinop, loteamento Sinop Mato Grosso, chácara 2400m² Sinop, imóvel rural Sinop, Ferreira Garcia Imobiliária, comprar chácara Sinop, lote campo Sinop, chácara Nanci Sinop
 
-### GEO tags
-- Região: BR-MT (Mato Grosso)
-- Cidade: Sinop
-- Coordenadas: -11.8642, -55.5073
+### GEO
+- Região: BR-MT, Cidade: Sinop, Coordenadas: -11.8642, -55.5073
 
 ### Schema.org (JSON-LD)
-- Tipo: RealEstateListing + RealEstateAgent
-- Endereço completo
-- Telefone do corretor
-- Área de atuação: Sinop/MT
-
-### Open Graph
-- Título, descrição e locale configurados para compartilhamento nas redes sociais
+RealEstateListing + RealEstateAgent com endereço e telefone completos.
 
 ---
 
-## 10. Ajustes visuais feitos na LP
+## 10. Imagens — mapeamento
 
-- Imagens da galeria sem escurecimento (brightness 1)
-- Galeria no mobile: 1 coluna com altura fixa
-- Overlay do hero mais escuro para legibilidade do texto
-- Sombra no título e subtítulo do hero
-- Estatísticas (2.400m², 100%, 10min) com fonte reduzida no mobile
-- Todos os CTAs como âncoras para o formulário (#formulario)
-- Botão "Ligar Agora" removido
-- "Scroll" traduzido para "Deslize"
-- Imagem horizontal abaixo do hero com aspect-ratio 16/9 no mobile
-- Hero content empurrado para cima no mobile para o botão aparecer na primeira dobra
-- Nome corrigido: Ferreira Garcia Imobiliária (sem o &)
-- Lotes: 2.400 m²
-- Infraestrutura: ruas cascalhadas e energia trifásica
-- Quote section: "Chácaras Nanci, Ferreira Garcia Imobiliária"
-- Footer com endereço completo e CRECI 8649/J
+| Seção | Arquivo |
+|---|---|
+| Hero (fundo) | `img-2.jpeg` — pôr do sol |
+| Sobre (abaixo do hero) | `Imagem nova.jpeg` — foto horizontal do lote |
+| Galeria 1ª | `img-1.jpeg` |
+| Galeria 2ª | `img-3.jpeg` |
+| Galeria 3ª | `img-4.jpeg` |
+| Galeria 4ª | `img-5.jpeg` |
+| CTA final (fundo) | `img-3.jpeg` |
 
 ---
 
 ## 11. Pendências
 
-- [ ] Adicionar variáveis de ambiente no Vercel (DATABASE_URL, FB_PIXEL_ID, FB_ACCESS_TOKEN)
+- [ ] Adicionar todas as variáveis de ambiente no Vercel (ver seção 8)
 - [ ] Rodar `pnpm db:push` para criar a tabela no Neon
-- [ ] Implementar Meta Pixel front-end (aguardando Pixel ID)
-- [ ] Implementar Google Analytics ou GTM (aguardando ID)
-- [ ] Testar fluxo completo: formulário > banco > CAPI > WhatsApp
+- [ ] Testar fluxo completo: formulário > banco > CAPI > GA4 > CRM > WhatsApp
 - [ ] Configurar domínio próprio no Vercel
