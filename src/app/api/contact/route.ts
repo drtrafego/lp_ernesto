@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getDb } from '@/lib/db'
 import { leads } from '@/lib/schema'
 import { sendMetaCAPI } from '@/lib/tracking-server'
+import { syncCRM } from '@/lib/crm'
 
 const ContactSchema = z.object({
   name:     z.string().min(2, 'Nome muito curto').max(120),
@@ -93,6 +94,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     eventSourceUrl,
   }).catch((err) =>
     console.error('[contact] Erro CAPI background:', err),
+  )
+
+  void syncCRM({
+    name:     input.name,
+    phone:    input.whatsapp,
+    campaign: input.utm_campaign,
+  }).catch((err) =>
+    console.error('[contact] Erro CRM background:', err),
   )
 
   return response
