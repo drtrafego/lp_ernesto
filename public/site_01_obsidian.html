@@ -818,7 +818,8 @@
     .hero-content { padding: 0 20px 60px; }
     .hero-scroll { right: 20px; }
     .sobre { grid-template-columns: 1fr; }
-    .sobre-image { height: 350px; }
+    .sobre-image { height: auto; aspect-ratio: 16/9; }
+    .sobre-image img { object-fit: contain; background: var(--dark); transform: none; }
     .sobre-content { padding: 50px 20px; }
     .sobre-stats { grid-template-columns: repeat(3,1fr); gap: 8px; }
     .stat-number { font-size: 1.4rem; }
