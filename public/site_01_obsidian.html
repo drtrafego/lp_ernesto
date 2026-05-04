@@ -68,6 +68,15 @@
 }
 </script>
 
+<!-- Google Tag Manager -->
+<script>(function(){try{var d=[];var p=new URLSearchParams(window.location.search);['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid'].forEach(function(k){var v=p.get(k);if(v)d.push({[k]:v});});if(d.length>0)(window.dataLayer=window.dataLayer||[]).push(Object.assign({},...d));}catch(e){}})();(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','%%GTM_ID%%');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Meta Pixel -->
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','%%FB_PIXEL_ID%%');fbq('track','PageView');fbq('track','ViewContent',{content_name:'Chácaras Nanci',content_category:'Imóvel Rural'});</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=%%FB_PIXEL_ID%%&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -845,6 +854,10 @@
 </head>
 <body>
 
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=%%GTM_ID%%" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
 <!-- NAVBAR -->
 <nav id="navbar">
   <div class="nav-logo">
@@ -1140,13 +1153,30 @@
     btn.disabled = true;
     btn.textContent = 'Enviando...';
 
+    let leadId = 'lead_' + Date.now();
+
     try {
-      await fetch('/api/contact', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, whatsapp, ...getUTMs() }),
       });
+      const data = await res.json();
+      if (data.leadId) leadId = String(data.leadId);
     } catch (_) {}
+
+    // Meta Pixel — Lead com eventID para deduplicação com CAPI
+    if (typeof fbq === 'function') {
+      fbq('track', 'Lead', {}, { eventID: leadId });
+    }
+
+    // GTM dataLayer — generate_lead para GA4
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'generate_lead',
+      lead_id: leadId,
+      form_name: 'Lead Chácara Nanci',
+    });
 
     window.location.href = '/obsidian/obrigado';
   });

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getDb } from '@/lib/db'
 import { leads } from '@/lib/schema'
-import { sendMetaCAPI } from '@/lib/tracking-server'
+import { sendMetaCAPI, sendGA4Lead } from '@/lib/tracking-server'
 import { syncCRM } from '@/lib/crm'
 
 const ContactSchema = z.object({
@@ -55,8 +55,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const match = cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]*)`))
     return match ? decodeURIComponent(match[1]) : undefined
   }
-  const fbc = parseCookie('_fbc')
-  const fbp = parseCookie('_fbp')
+  const fbc      = parseCookie('_fbc')
+  const fbp      = parseCookie('_fbp')
+  const gaCookie = parseCookie('_ga')
 
   const eventSourceUrl = req.headers.get('origin') ?? undefined
 
@@ -91,18 +92,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     userAgent,
     fbc,
     fbp,
+    gaCookie,
     eventSourceUrl,
-  }).catch((err) =>
-    console.error('[contact] Erro CAPI background:', err),
-  )
+  }).catch((err) => console.error('[contact] Erro CAPI background:', err))
+
+  void sendGA4Lead({
+    leadId,
+    gaCookie,
+    userAgent,
+    ip,
+    utmSource:   input.utm_source,
+    utmMedium:   input.utm_medium,
+    utmCampaign: input.utm_campaign,
+  }).catch((err) => console.error('[contact] Erro GA4 background:', err))
 
   void syncCRM({
     name:     input.name,
     phone:    input.whatsapp,
     campaign: input.utm_campaign,
-  }).catch((err) =>
-    console.error('[contact] Erro CRM background:', err),
-  )
+  }).catch((err) => console.error('[contact] Erro CRM background:', err))
 
   return response
 }

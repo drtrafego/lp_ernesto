@@ -8,6 +8,7 @@ export interface CAPIPayload {
   userAgent?: string
   fbc?: string
   fbp?: string
+  gaCookie?: string
   eventSourceUrl?: string
 }
 
@@ -24,6 +25,7 @@ function cleanPhone(phone: string): string {
   return phone.replace(/\D/g, '')
 }
 
+// ── Meta CAPI ────────────────────────────────────────────────────
 export async function sendMetaCAPI(payload: CAPIPayload): Promise<void> {
   const pixelId     = process.env.FB_PIXEL_ID
   const accessToken = process.env.FB_ACCESS_TOKEN
@@ -91,5 +93,76 @@ export async function sendMetaCAPI(payload: CAPIPayload): Promise<void> {
     })
   } catch (err) {
     console.error('[CAPI] Falha inesperada (isolada):', err)
+  }
+}
+
+// ── GA4 Measurement Protocol ─────────────────────────────────────
+export async function sendGA4Lead(payload: {
+  leadId: number | string
+  gaCookie?: string
+  userAgent?: string
+  ip?: string
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+}): Promise<void> {
+  const measurementId = process.env.GA_MEASUREMENT_ID
+  const apiSecret     = process.env.GA_API_SECRET
+
+  if (!measurementId || !apiSecret) {
+    console.warn('[GA4] GA_MEASUREMENT_ID ou GA_API_SECRET ausente — evento ignorado.')
+    return
+  }
+
+  try {
+    const { leadId, gaCookie, utmSource, utmMedium, utmCampaign } = payload
+
+    // Extrai client_id do cookie _ga (formato: GA1.1.XXXXXXXXXX.XXXXXXXXXX)
+    let clientId = `lead_${Date.now()}`
+    if (gaCookie) {
+      const parts = gaCookie.split('.')
+      if (parts.length >= 4) clientId = `${parts[2]}.${parts[3]}`
+    }
+
+    const sessionId = String(Date.now())
+
+    const body = {
+      client_id: clientId,
+      non_personalized_ads: false,
+      events: [
+        {
+          name: 'generate_lead',
+          params: {
+            engagement_time_msec: 100,
+            session_id: sessionId,
+            currency: 'BRL',
+            value: 0,
+            lead_source: 'landing_page',
+            form_name: 'Lead Chácara Nanci',
+            external_id: String(leadId),
+            ...(utmSource   && { utm_source:   utmSource }),
+            ...(utmMedium   && { utm_medium:   utmMedium }),
+            ...(utmCampaign && { utm_campaign: utmCampaign }),
+          },
+        },
+      ],
+    }
+
+    const url = `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      console.error('[GA4] Erro na resposta:', response.status)
+      return
+    }
+
+    console.log('[GA4] Evento generate_lead enviado:', { leadId, clientId })
+  } catch (err) {
+    console.error('[GA4] Falha inesperada (isolada):', err)
   }
 }

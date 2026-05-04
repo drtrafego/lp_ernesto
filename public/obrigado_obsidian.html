@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Obrigado — Chácaras Nanci</title>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','%%GTM_ID%%');</script>
+<!-- End Google Tag Manager -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -224,6 +229,9 @@
 </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=%%GTM_ID%%" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <div class="logo">
   Chácaras Nanci
@@ -261,6 +269,14 @@
 
 <script>
   const WA_URL = 'https://wa.me/5566996829009?text=Gostaria+de+mais+informa%C3%A7%C3%B5es+da+Ch%C3%A1cara+Nanci';
+
+  // GTM dataLayer — generate_lead na página de obrigado
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'generate_lead',
+    form_name: 'Lead Chácara Nanci',
+    page: 'obrigado',
+  });
   const CIRCUMFERENCE = 2 * Math.PI * 28; // 175.93
   const ring = document.getElementById('ring');
   const num = document.getElementById('num');
