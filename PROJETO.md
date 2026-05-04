@@ -150,11 +150,22 @@ Dados enviados com SHA-256: telefone (`ph`), primeiro nome (`fn`), external_id.
 Dados em claro: IP, User-Agent, cookies `_fbc` e `_fbp`.
 Deduplicação: `event_id` = `leadId` (mesmo valor do Pixel client-side).
 
+### Ordem dos scripts no `<head>` (ambas as páginas)
+
+```
+1. dataLayer init + captura de UTMs   ← síncrono
+2. GTM snippet                         ← async, placeholder %%GTM_ID%%
+3. GA4 gtag.js direto                  ← async, placeholder %%GA4_ID%%
+   send_page_view: false               ← evita pageview duplicado com GTM
+```
+
+Por que GA4 direto no head: o `window.gtag` só existia depois que o GTM carregava a tag de configuração GA4 internamente, o que causa atraso. GA4 direto garante que `gtag()` está disponível imediatamente.
+
 ### GTM + GA4 (dataLayer) — client-side
 
 | Evento | Quando | Status |
 |---|---|---|
-| UTMs | Ao carregar (utm_source, utm_medium, utm_campaign, utm_content, utm_term, gclid) | Implementado |
+| UTMs capturados | Ao carregar (utm_source, utm_medium, utm_campaign, utm_content, utm_term, gclid) | Implementado |
 | `generate_lead` | Ao submeter o formulário | Implementado |
 | `generate_lead` | Ao entrar na página de obrigado | Implementado |
 
@@ -184,8 +195,9 @@ Parâmetros: `org_slug: obsidian`, `name`, `phone` (DDI automático), `message` 
 | `FB_PIXEL_ID` | Meta Business, Gerenciador de Eventos | A configurar |
 | `FB_ACCESS_TOKEN` | Meta Business, Gerenciador de Eventos, Conversions API | A configurar |
 | `NEXT_PUBLIC_FB_PIXEL_ID` | Mesmo valor do FB_PIXEL_ID | A configurar |
-| `NEXT_PUBLIC_GTM_ID` | Google Tag Manager | A configurar |
-| `GA_MEASUREMENT_ID` | GA4, Admin, Data Streams (ex: G-XXXXXXXXXX) | A configurar |
+| `NEXT_PUBLIC_GTM_ID` | Google Tag Manager (ex: GTM-XXXXXXX) | A configurar |
+| `NEXT_PUBLIC_GA4_ID` | GA4, Measurement ID (ex: G-XXXXXXXXXX) — injetado direto no head | A configurar |
+| `GA_MEASUREMENT_ID` | Mesmo valor do NEXT_PUBLIC_GA4_ID — usado server-side no Measurement Protocol | A configurar |
 | `GA_API_SECRET` | GA4, Admin, Data Streams, Measurement Protocol API secrets | A configurar |
 | `CRM_API_URL` | URL base da API do CRM (sem barra no final) | A configurar |
 
@@ -226,7 +238,10 @@ RealEstateListing + RealEstateAgent com endereço e telefone completos.
 
 ## 11. Pendências
 
-- [ ] Adicionar todas as variáveis de ambiente no Vercel (ver seção 8)
+- [ ] Adicionar no Vercel: `DATABASE_URL`, `FB_PIXEL_ID`, `FB_ACCESS_TOKEN`, `NEXT_PUBLIC_FB_PIXEL_ID`
+- [ ] Adicionar no Vercel: `NEXT_PUBLIC_GTM_ID` (cliente vai trazer)
+- [ ] Adicionar no Vercel: `NEXT_PUBLIC_GA4_ID`, `GA_MEASUREMENT_ID`, `GA_API_SECRET`
+- [ ] Adicionar no Vercel: `CRM_API_URL`
 - [ ] Rodar `pnpm db:push` para criar a tabela no Neon
 - [ ] Testar fluxo completo: formulário > banco > CAPI > GA4 > CRM > WhatsApp
 - [ ] Configurar domínio próprio no Vercel
