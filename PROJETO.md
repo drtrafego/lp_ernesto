@@ -7,7 +7,7 @@
 
 Landing page de alto padrão para o loteamento **Chácaras Nanci**, comercializado pela **Ferreira Garcia Imobiliária** (CRECI 8649/J), localizada em Sinop/MT.
 
-A página foi construída com Next.js 14 e hospedada no Vercel. O backend captura leads, salva no banco de dados, dispara eventos para a Meta via Conversions API, envia para o GA4 via Measurement Protocol e sincroniza com o CRM.
+A página foi construída com Next.js 14 e hospedada no Vercel. O backend captura leads, salva no banco de dados Neon (com `organization_id` para identificar a empresa no CRM), dispara eventos para a Meta via Conversions API e envia para o GA4 via Measurement Protocol.
 
 ---
 
@@ -67,7 +67,7 @@ POST /api/contact
   - Retorna 200 OK com leadId
   - [background] Meta CAPI → evento Lead (mesmo eventID do Pixel)
   - [background] GA4 Measurement Protocol → evento generate_lead
-  - [background] CRM sync → org_slug: obsidian
+  - lead salvo com organization_id (identifica empresa no CRM Neon)
         |
         v
 Redirect → /obsidian/obrigado
@@ -99,10 +99,9 @@ public/
 
 src/
   lib/
-    schema.ts                 Tabela "leads" (name, whatsapp, utms)
+    schema.ts                 Tabela "leads" (organization_id, name, whatsapp, utms)
     db.ts                     Conexão Drizzle + Neon
     tracking-server.ts        Meta CAPI + GA4 Measurement Protocol (server-side)
-    crm.ts                    Sync CRM (org_slug: obsidian, fire-and-forget)
   app/
     obsidian/
       route.ts                GET /obsidian → injeta GTM_ID e FB_PIXEL_ID no HTML
@@ -120,6 +119,7 @@ src/
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `id` | serial (PK) | Usado como external_id na CAPI e event_id no GA4 |
+| `organization_id` | text | UUID da empresa no CRM Neon (env: ORGANIZATION_ID) |
 | `name` | text | Nome do lead |
 | `whatsapp` | text | WhatsApp (qualquer formato) |
 | `utm_source` | text | Ex: facebook |
@@ -177,13 +177,9 @@ Por que GA4 direto no head: o `window.gtag` só existia depois que o GTM carrega
 
 Parâmetros: `client_id` (extraído do cookie `_ga`), `session_id`, `currency`, `value`, `form_name`, `external_id`, UTMs.
 
-### CRM — crm.ts
+### CRM — integração via banco
 
-| Ação | Quando | Status |
-|---|---|---|
-| `sync-whatsapp-lead` | Background após salvar no banco | Implementado |
-
-Parâmetros: `org_slug: obsidian`, `name`, `phone` (DDI automático), `message` fixo, `campaign` (utm_campaign).
+O lead é salvo diretamente no Neon com o campo `organization_id` (UUID da empresa). Não há webhook externo. O CRM lê os leads pelo `organization_id` na tabela `leads`.
 
 ---
 
@@ -191,15 +187,13 @@ Parâmetros: `org_slug: obsidian`, `name`, `phone` (DDI automático), `message` 
 
 | Variável | Onde obter | Status |
 |---|---|---|
-| `DATABASE_URL` | console.neon.tech | A configurar |
-| `FB_PIXEL_ID` | Meta Business, Gerenciador de Eventos | A configurar |
+| `DATABASE_URL` | console.neon.tech | Configurado |
+| `NEXT_PUBLIC_FB_PIXEL_ID` | Meta Business, Gerenciador de Eventos | A configurar |
 | `FB_ACCESS_TOKEN` | Meta Business, Gerenciador de Eventos, Conversions API | A configurar |
-| `NEXT_PUBLIC_FB_PIXEL_ID` | Mesmo valor do FB_PIXEL_ID | A configurar |
 | `NEXT_PUBLIC_GTM_ID` | Google Tag Manager (ex: GTM-XXXXXXX) | A configurar |
-| `NEXT_PUBLIC_GA4_ID` | GA4, Measurement ID (ex: G-XXXXXXXXXX) — injetado direto no head | A configurar |
-| `GA_MEASUREMENT_ID` | Mesmo valor do NEXT_PUBLIC_GA4_ID — usado server-side no Measurement Protocol | A configurar |
+| `NEXT_PUBLIC_GA4_ID` | GA4, Measurement ID (ex: G-XXXXXXXXXX) — usado no front e server-side | A configurar |
 | `GA_API_SECRET` | GA4, Admin, Data Streams, Measurement Protocol API secrets | A configurar |
-| `CRM_API_URL` | URL base da API do CRM (sem barra no final) | A configurar |
+| `ORGANIZATION_ID` | UUID da empresa no CRM Neon | Configurado (ea612c4f...) |
 
 ---
 
@@ -238,10 +232,11 @@ RealEstateListing + RealEstateAgent com endereço e telefone completos.
 
 ## 11. Pendências
 
-- [ ] Adicionar no Vercel: `DATABASE_URL`, `FB_PIXEL_ID`, `FB_ACCESS_TOKEN`, `NEXT_PUBLIC_FB_PIXEL_ID`
+- [x] Configurar `DATABASE_URL` no Vercel
+- [x] Configurar `ORGANIZATION_ID` no Vercel
+- [ ] Rodar `pnpm db:push` para aplicar coluna `organization_id` na tabela do Neon
+- [ ] Adicionar no Vercel: `NEXT_PUBLIC_FB_PIXEL_ID`, `FB_ACCESS_TOKEN`
 - [ ] Adicionar no Vercel: `NEXT_PUBLIC_GTM_ID` (cliente vai trazer)
-- [ ] Adicionar no Vercel: `NEXT_PUBLIC_GA4_ID`, `GA_MEASUREMENT_ID`, `GA_API_SECRET`
-- [ ] Adicionar no Vercel: `CRM_API_URL`
-- [ ] Rodar `pnpm db:push` para criar a tabela no Neon
-- [ ] Testar fluxo completo: formulário > banco > CAPI > GA4 > CRM > WhatsApp
-- [ ] Configurar domínio próprio no Vercel
+- [ ] Adicionar no Vercel: `NEXT_PUBLIC_GA4_ID`, `GA_API_SECRET`
+- [ ] Testar fluxo completo: formulário > banco > CAPI > GA4 > WhatsApp
+- [ ] Domínio `ferreiragarciaimobiliaria.com.br`: aguardando acesso ao painel GK2.CLOUD para adicionar CNAME `www` apontando para `b010328408634c82.vercel-dns-017.com.`

@@ -2,6 +2,7 @@ import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 
 export const leads = pgTable('leads', {
   id: serial('id').primaryKey(),
+  organization_id: text('organization_id'),
   name:     text('name').notNull(),
   whatsapp: text('whatsapp').notNull(),
   utm_source:   text('utm_source'),

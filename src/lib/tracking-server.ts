@@ -27,7 +27,7 @@ function cleanPhone(phone: string): string {
 
 // ── Meta CAPI ────────────────────────────────────────────────────
 export async function sendMetaCAPI(payload: CAPIPayload): Promise<void> {
-  const pixelId     = process.env.FB_PIXEL_ID
+  const pixelId     = process.env.NEXT_PUBLIC_FB_PIXEL_ID
   const accessToken = process.env.FB_ACCESS_TOKEN
 
   if (!pixelId || !accessToken) {
@@ -106,11 +106,11 @@ export async function sendGA4Lead(payload: {
   utmMedium?: string
   utmCampaign?: string
 }): Promise<void> {
-  const measurementId = process.env.GA_MEASUREMENT_ID
+  const measurementId = process.env.NEXT_PUBLIC_GA4_ID
   const apiSecret     = process.env.GA_API_SECRET
 
   if (!measurementId || !apiSecret) {
-    console.warn('[GA4] GA_MEASUREMENT_ID ou GA_API_SECRET ausente — evento ignorado.')
+    console.warn('[GA4] NEXT_PUBLIC_GA4_ID ou GA_API_SECRET ausente — evento ignorado.')
     return
   }
 

@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { getDb } from '@/lib/db'
 import { leads } from '@/lib/schema'
 import { sendMetaCAPI, sendGA4Lead } from '@/lib/tracking-server'
-import { syncCRM } from '@/lib/crm'
 
 const ContactSchema = z.object({
   name:     z.string().min(2, 'Nome muito curto').max(120),
@@ -66,6 +65,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const [row] = await withTimeout(
       getDb().insert(leads).values({
+        organization_id: process.env.ORGANIZATION_ID,
         name:         input.name,
         whatsapp:     input.whatsapp,
         utm_source:   input.utm_source,
@@ -105,12 +105,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     utmMedium:   input.utm_medium,
     utmCampaign: input.utm_campaign,
   }).catch((err) => console.error('[contact] Erro GA4 background:', err))
-
-  void syncCRM({
-    name:     input.name,
-    phone:    input.whatsapp,
-    campaign: input.utm_campaign,
-  }).catch((err) => console.error('[contact] Erro CRM background:', err))
 
   return response
 }
